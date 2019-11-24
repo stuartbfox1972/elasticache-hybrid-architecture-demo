@@ -30,11 +30,12 @@ elasticache_token="$6"
 
 # setup instance
 sleep 5
-yum -y install httpd mod_wsgi unzip
+yum -y install httpd mod_wsgi unzip python-pip
 amazon-linux-extras install -y php7.2 lamp-mariadb10.2-php7.2
+pip install flask redis
 
 # prepare php application
-git clone https://github.com/stuartbfox1972/elasticache-hybrid-architecture-demo
+git clone https://github.com/awslabs/elasticache-hybrid-architecture-demo
 cd elasticache-hybrid-architecture-demo
 sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
     -e "s/{ELASTICACHE_PORT}/${elasticache_port}/g" \
@@ -43,6 +44,14 @@ sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
         -e "s/{MYSQL_USERNAME}/${mysql_username}/g" \
         -e "s/{MYSQL_DATABASE}/${mysql_database}/g" \
         config_template.php > config.php
+
+sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
+    -e "s/{ELASTICACHE_PORT}/${elasticache_port}/g" \
+        -e "s/{ELASTICACHE_TOKEN}/${elasticache_token}/g" \
+        -e "s/{MYSQL_ENDPOINT}/${mysql_endpoint}/g" \
+        -e "s/{MYSQL_USERNAME}/${mysql_username}/g" \
+        -e "s/{MYSQL_DATABASE}/${mysql_database}/g" \
+        config_template.yaml > api/config.yaml
 
 # prepare sample data
 unzip sample-dataset-crimes-2012-2015.csv.zip
@@ -53,7 +62,9 @@ git clone git://github.com/nrk/predis.git
 
 # move to document root
 mv * /var/www/html/
+chown -R apache /var/www/html/
 chmod 0644 /var/www/html/demo.php
+chmod 0700 /var/www/html/api/rest.wsgi
 
 # enable http service
 systemctl enable httpd.service
