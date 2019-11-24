@@ -16,8 +16,8 @@
 #
 
 if [ "$#" -lt 5 ]; then
-	echo "Usage: $0 <elasticache_endpoint> <elasticache_port> <mysql_endpoint> <mysql_username> <mysql_database>"
-	exit 1
+        echo "Usage: $0 <elasticache_endpoint> <elasticache_port> <mysql_endpoint> <mysql_username> <mysql_database>"
+        exit 1
 fi
 
 elasticache_endpoint="$1"
@@ -29,20 +29,20 @@ elasticache_token="$6"
 
 
 # setup instance
-sleep 10
-yum -y install httpd24 php70 php70-mysqlnd unzip
-
+sleep 5
+yum -y install httpd mod_wsgi unzip
+amazon-linux-extras install -y php7.2 lamp-mariadb10.2-php7.2
 
 # prepare php application
-git clone https://github.com/awslabs/elasticache-hybrid-architecture-demo
+git clone https://github.com/stuartbfox1972/elasticache-hybrid-architecture-demo
 cd elasticache-hybrid-architecture-demo
 sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
     -e "s/{ELASTICACHE_PORT}/${elasticache_port}/g" \
-	-e "s/{ELASTICACHE_TOKEN}/${elasticache_token}/g" \
-	-e "s/{MYSQL_ENDPOINT}/${mysql_endpoint}/g" \
-	-e "s/{MYSQL_USERNAME}/${mysql_username}/g" \
-	-e "s/{MYSQL_DATABASE}/${mysql_database}/g" \
-	config_template.php > config.php
+        -e "s/{ELASTICACHE_TOKEN}/${elasticache_token}/g" \
+        -e "s/{MYSQL_ENDPOINT}/${mysql_endpoint}/g" \
+        -e "s/{MYSQL_USERNAME}/${mysql_username}/g" \
+        -e "s/{MYSQL_DATABASE}/${mysql_database}/g" \
+        config_template.php > config.php
 
 # prepare sample data
 unzip sample-dataset-crimes-2012-2015.csv.zip
@@ -56,5 +56,5 @@ mv * /var/www/html/
 chmod 0644 /var/www/html/demo.php
 
 # enable http service
-service httpd start
-chkconfig httpd on
+systemctl enable httpd.service
+systemctl start httpd.service
