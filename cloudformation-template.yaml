@@ -266,7 +266,7 @@ Parameters:
 Mappings:
     RegionMap:
         us-east-1:
-            AMI: ami-97785bed
+            AMI: ami-00068cd7555f543d5
             DeviceName: /dev/xvda
         us-east-2:
             AMI: ami-f63b1193
