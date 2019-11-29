@@ -52,9 +52,8 @@ def run_query(r, req):
         data = r.get(hex_dig)
         stop = datetime.now()
         diff = (stop-start).total_seconds()
-        return jsonResponse("Cache HIT - Fetching from Redis", "success", "redis", diff)
+        return jsonResponse("Cache HIT - Fetching from Redis", "success", "redis", diff, data)
     else:
-        blob = ''
         db = mysql.connect(host     = req['mysqlEndpoint'],
                            user     = req['mysqlUsername'],
                            passwd   = req['mysqlPassword'],
