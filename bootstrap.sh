@@ -61,6 +61,7 @@ mv sample-dataset-crimes-2012-2015.csv crimes-2012-2015.csv
 git clone git://github.com/nrk/predis.git
 
 # move to document root
+mv server.conf /etc/httpd/conf.d/
 mv * /var/www/html/
 chown -R apache /var/www/html/
 chmod 0644 /var/www/html/demo.php
