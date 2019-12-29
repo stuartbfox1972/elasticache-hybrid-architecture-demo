@@ -16,7 +16,7 @@
 #
 
 if [ "$#" -lt 5 ]; then
-        echo "Usage: $0 <elasticache_endpoint> <elasticache_port> <mysql_endpoint> <mysql_username> <mysql_database>"
+	echo "Usage: $0 <elasticache_endpoint> <elasticache_port> <mysql_endpoint> <mysql_username> <mysql_database> <mysql_password>"
         exit 1
 fi
 
@@ -25,8 +25,8 @@ elasticache_port="$2"
 mysql_endpoint="$3"
 mysql_username="$4"
 mysql_database="$5"
-elasticache_token="$6"
-
+mysql_password="$6"
+elasticache_token="$7"
 
 # setup instance
 sleep 5
@@ -35,7 +35,9 @@ amazon-linux-extras install -y php7.2 lamp-mariadb10.2-php7.2
 pip install flask redis
 
 # prepare php application
+cd /tmp/
 git clone https://github.com/awslabs/elasticache-hybrid-architecture-demo
+git clone https://github.com/datacharmer/test_db
 cd elasticache-hybrid-architecture-demo
 sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
     -e "s/{ELASTICACHE_PORT}/${elasticache_port}/g" \
@@ -43,6 +45,7 @@ sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
         -e "s/{MYSQL_ENDPOINT}/${mysql_endpoint}/g" \
         -e "s/{MYSQL_USERNAME}/${mysql_username}/g" \
         -e "s/{MYSQL_DATABASE}/${mysql_database}/g" \
+        -e "s/{MYSQL_PASSWORD}/${mysql_password}/g" \
         config_template.php > config.php
 
 sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
@@ -51,14 +54,10 @@ sed -e "s/{ELASTICACHE_ENDPOINT}/${elasticache_endpoint}/g" \
         -e "s/{MYSQL_ENDPOINT}/${mysql_endpoint}/g" \
         -e "s/{MYSQL_USERNAME}/${mysql_username}/g" \
         -e "s/{MYSQL_DATABASE}/${mysql_database}/g" \
+        -e "s/{MYSQL_DATABASE}/${mysql_password}/g" \
         config_template.yaml > api/config.yaml
 
-# prepare sample data
-unzip sample-dataset-crimes-2012-2015.csv.zip
-mv sample-dataset-crimes-2012-2015.csv crimes-2012-2015.csv
 
-# download predis client
-git clone git://github.com/nrk/predis.git
 
 # move to document root
 mv server.conf /etc/httpd/conf.d/
@@ -70,3 +69,7 @@ chmod 0700 /var/www/html/api/rest.wsgi
 # enable http service
 systemctl enable httpd.service
 systemctl start httpd.service
+
+# prepare sample data
+cd /tmp/test_db
+mysql -u ${mysql_username} -h ${mysql_endpoint} -p ${mysql_password} < employees.sql

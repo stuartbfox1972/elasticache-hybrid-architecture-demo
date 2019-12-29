@@ -137,7 +137,7 @@ $messages = null;
   <br />
   <div class="container" ng-controller="myController">
 	<div class="jumbotron container">
-		<h2>Latency reduction of hybrid architectures with Amazon ElastiCache<br/>
+		<h2>Latency reduction of hybrid architectures with Amazon Caching Solutions<br/>
 			<small>Demo script to measure response time from database and cache</small></h2>
 		<br/>
 
